@@ -26,7 +26,7 @@ type response struct {
 }
 
 func (resp response) printinfo() {
-	fmt.Printf("Title: %s\nDescription: %s\nAuthor: %s\n", resp.Author, resp.Desc, resp.Author)
+	fmt.Printf("Title: %s\nDescription: %s\nAuthor: %s\nAuth: %s\n", resp.Title, resp.Desc, resp.Author, resp.Auth)
 }
 
 func fromjson(src string, v interface{}) error {
@@ -40,6 +40,7 @@ func tojson(v interface{}) ([]byte, error) {
 func apihandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
+	fmt.Println("RAW_RESPONSE", string(body))
 	if err != nil {
 		fmt.Println(err)
 		return
