@@ -5,9 +5,11 @@ import "net/http"
 import "io/ioutil"
 import "encoding/json"
 
-type Site struct {
-	Title string
-	Body  []byte
+type config struct {
+	Site_prefix string
+	Port int
+	Sql_server_link string
+	
 }
 
 type object struct {
@@ -19,6 +21,7 @@ type response struct {
 	Title   string
 	Desc    string
 	Author  string
+	Auth string
 	Objects []object
 }
 
@@ -43,18 +46,13 @@ func apihandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var resp response
 	fromjson(string(body), &resp)
-	fmt.Fprintf(w, "RECEIVED POST\n%s\n", resp)
+	fmt.Fprintf(w, "200")
 	resp.printinfo()
 	fmt.Println()
-}
-
-func roothandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello Bendix")
 }
 
 func main() {
 	fmt.Println("TODO SERVER\nCopyright by Paul Kramme 2017")
 	http.HandleFunc("/api", apihandler)
-	http.HandleFunc("/", roothandler)
 	http.ListenAndServe(":80", nil)
 }
