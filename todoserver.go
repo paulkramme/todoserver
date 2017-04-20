@@ -16,10 +16,10 @@ type object struct {
 }
 
 type response struct {
-	Title         string
-	Desc          string
-	Author        string
-	Listofobjects []object
+	Title   string
+	Desc    string
+	Author  string
+	Objects []object
 }
 
 func (resp response) printinfo() {
