@@ -4,6 +4,10 @@ import "fmt"
 import "net/http"
 import "io/ioutil"
 import "encoding/json"
+import "flag"
+
+var iterator int
+var info bool
 
 type config struct {
 	Site_prefix     string
@@ -25,11 +29,17 @@ type response struct {
 	Objects []Object
 }
 
+type User struct {
+	Id string
+	Pw string
+}
+
 func (resp response) printinfo() {
 	fmt.Printf("Title: %s\nDescription: %s\nAuthor: %s\nAuth: %s\nObjects:\n", resp.Title, resp.Desc, resp.Author, resp.Auth)
 	for _, object := range resp.Objects {
-		fmt.Printf("\tName: %s\n\tIschecked: %t\n\tDescription: %s\n\n", object.Name, object.Check, object.Desc)
+		fmt.Printf("\tName: %s\n\tIschecked: %t\n\tDescription: %s\n", object.Name, object.Check, object.Desc)
 	}
+	fmt.Println()
 }
 
 func fromjson(src string, v interface{}) error {
@@ -40,23 +50,42 @@ func tojson(v interface{}) ([]byte, error) {
 	return json.Marshal(v)
 }
 
+func userhandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+}
+
 func apihandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
-	fmt.Println("RAW_RESPONSE", string(body), "\n")
+	//fmt.Println("RAW_RESPONSE", string(body), "\n")
+	if err != nil {
+		fmt.Println(err)
+		fmt.Fprintf(w, "400 %s", err)
+		return
+	}
+	var resp response
+	err = fromjson(string(body), &resp)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	var resp response
-	fromjson(string(body), &resp)
 	fmt.Fprintf(w, "200")
-	resp.printinfo()
-	fmt.Println()
+	
+	if info == true {
+		iterator++
+		fmt.Println(iterator)
+		resp.printinfo()
+	}
 }
 
 func main() {
 	fmt.Println("TODO SERVER\nCopyright by Paul Kramme 2017")
+
+	infoprinting := flag.Bool("info", false, "Printing incoming api usage and number of connections")
+	flag.Parse()
+	info = *infoprinting
+
 	http.HandleFunc("/api", apihandler)
 	http.ListenAndServe(":80", nil)
 }
