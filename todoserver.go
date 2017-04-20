@@ -11,19 +11,27 @@ type Site struct {
 }
 
 type object struct {
-	checkbox bool
-	desc     string
+	Checkbox bool
+	Desc     string
 }
 
 type response struct {
 	Title         string
 	Desc          string
 	Author        string
-	listofobjects []object
+	Listofobjects []object
+}
+
+func (resp response) printinfo() {
+	fmt.Printf("Title: %s\nDescription: %s\nAuthor: %s\n", resp.Author, resp.Desc, resp.Author)
 }
 
 func fromjson(src string, v interface{}) error {
 	return json.Unmarshal([]byte(src), v)
+}
+
+func tojson(v interface{}) ([]byte, error) {
+	return json.Marshal(v)
 }
 
 func apihandler(w http.ResponseWriter, r *http.Request) {
@@ -33,8 +41,11 @@ func apihandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Fprintf(w, "RECEIVED POST\n%s\n", body)
-	fmt.Println(string(body))
+	var resp response
+	fromjson(string(body), &resp)
+	fmt.Fprintf(w, "RECEIVED POST\n%s\n", resp)
+	resp.printinfo()
+	fmt.Println()
 }
 
 func roothandler(w http.ResponseWriter, r *http.Request) {
