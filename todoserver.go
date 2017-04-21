@@ -5,6 +5,8 @@ import "net/http"
 import "io/ioutil"
 import "encoding/json"
 import "flag"
+import "database/sql"
+import "github.com/go-sql-driver/mysql"
 
 var iterator int
 var info bool
@@ -56,7 +58,7 @@ func userhandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func apihandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
+	//defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	//fmt.Println("RAW_RESPONSE", string(body), "\n")
 	if err != nil {
@@ -77,6 +79,7 @@ func apihandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(iterator)
 		resp.printinfo()
 	}
+	r.Body.Close()
 }
 
 func main() {
