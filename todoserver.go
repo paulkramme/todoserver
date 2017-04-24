@@ -12,7 +12,7 @@ var info bool
 
 type config struct {
 	Api_site_prefix string
-	Listen           string
+	Listen          string
 	Info_printing   bool
 	Sql_server      string
 	Sql_user        string
@@ -121,6 +121,7 @@ func main() {
 			resp.printinfo()
 		}
 	})
+
 	fmt.Println("Initialization complete.")
 	http.ListenAndServe(conf.Listen, nil)
 }
