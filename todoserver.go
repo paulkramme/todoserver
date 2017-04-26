@@ -7,6 +7,7 @@ import "encoding/json"
 import "flag"
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql"
+import "github.com/fatih/color"
 
 var info bool
 
@@ -60,14 +61,14 @@ func userhandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fmt.Println("TODO SERVER\nCopyright by Paul Kramme 2017")
+	fmt.Println("TODO SERVER - Copyright by Paul Kramme 2017")
 
 	var iterator int
 
 	configfile, err := ioutil.ReadFile("./config.json")
 	var conf config
 	if err != nil {
-		fmt.Println("No config.json found in current directory, expecting arguments.")
+		color.Red("No config.json found in current directory, expecting arguments.")
 	} else {
 		err = nil
 		err = fromjson(string(configfile), &conf)
@@ -77,7 +78,14 @@ func main() {
 	}
 
 	infoprinting := flag.Bool("info", false, "Printing incoming api usage and number of connections")
+	licenses := flag.Bool("licenses", false, "Print licenses and exit")
 	flag.Parse()
+
+	if *licenses == true {
+		fmt.Println("\nLicenses:")
+		fmt.Println("Color package by fatih, licensed under MIT\nURL: https://github.com/fatih/color\n")
+		return
+	}
 
 	fmt.Print("Connecting to database: ")
 	db_string := fmt.Sprintf("%s:%s@tcp(%s:%d)/todo", conf.Sql_user, conf.Sql_password, conf.Sql_server, conf.Sql_port)
@@ -86,13 +94,13 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
-	fmt.Print("success\n")
+	color.Green("success\n")
 	fmt.Print("Testing database connection: ")
 	err = db.Ping()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Print("success\n")
+	color.Green("success\n")
 
 	http.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
@@ -122,6 +130,6 @@ func main() {
 		}
 	})
 
-	fmt.Println("Initialization complete.")
+	color.Green("Initialization complete.")
 	http.ListenAndServe(conf.Listen, nil)
 }
