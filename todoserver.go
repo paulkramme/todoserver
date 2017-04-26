@@ -1,14 +1,14 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-	"io/ioutil"
+	"database/sql"
 	"encoding/json"
 	"flag"
-	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
+	"fmt"
 	"github.com/fatih/color"
+	_ "github.com/go-sql-driver/mysql"
+	"io/ioutil"
+	"net/http"
 )
 
 type config struct {
@@ -87,7 +87,7 @@ func main() {
 	}
 	defer db.Close()
 	color.Green("success\n")
-	
+
 	fmt.Print("Testing database connection: ")
 	err = db.Ping()
 	if err != nil {
