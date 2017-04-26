@@ -99,14 +99,22 @@ func main() {
 		defer r.Body.Close()
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			fmt.Println(err)
-			fmt.Fprintf(w, "400 %s", err)
+			if *infoprinting == true {
+				fmt.Println(err)
+			}
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, "{\"message\": \"%s\"}", err)
 			return
 		}
 		var resp response
 		err = fromjson(string(body), &resp)
 		if err != nil {
-			fmt.Println(err)
+			if *infoprinting == true {
+				fmt.Println(err)
+			}
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, "{\"message\":\"%s\"}", err)
+
 			return
 		}
 
@@ -114,7 +122,7 @@ func main() {
 		// Compare user with post author
 		// post post to database
 
-		fmt.Fprintf(w, "200")
+		w.WriteHeader(http.StatusOK)
 
 		if *infoprinting == true {
 			iterator++
