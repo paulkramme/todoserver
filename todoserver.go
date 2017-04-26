@@ -1,15 +1,15 @@
 package main
 
-import "fmt"
-import "net/http"
-import "io/ioutil"
-import "encoding/json"
-import "flag"
-import "database/sql"
-import _ "github.com/go-sql-driver/mysql"
-import "github.com/fatih/color"
-
-var info bool
+import (
+	"fmt"
+	"net/http"
+	"io/ioutil"
+	"encoding/json"
+	"flag"
+	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/fatih/color"
+)
 
 type config struct {
 	Api_site_prefix string
@@ -46,14 +46,6 @@ func (resp response) printinfo() {
 		fmt.Printf("\tName: %s\n\tIschecked: %t\n\tDescription: %s\n", object.Name, object.Check, object.Desc)
 	}
 	fmt.Println()
-}
-
-func fromjson(src string, v interface{}) error {
-	return json.Unmarshal([]byte(src), v)
-}
-
-func tojson(v interface{}) ([]byte, error) {
-	return json.Marshal(v)
 }
 
 func userhandler(w http.ResponseWriter, r *http.Request) {
@@ -95,6 +87,7 @@ func main() {
 	}
 	defer db.Close()
 	color.Green("success\n")
+	
 	fmt.Print("Testing database connection: ")
 	err = db.Ping()
 	if err != nil {
@@ -132,4 +125,12 @@ func main() {
 
 	color.Green("Initialization complete.")
 	http.ListenAndServe(conf.Listen, nil)
+}
+
+func fromjson(src string, v interface{}) error {
+	return json.Unmarshal([]byte(src), v)
+}
+
+func tojson(v interface{}) ([]byte, error) {
+	return json.Marshal(v)
 }
