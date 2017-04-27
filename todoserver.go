@@ -40,18 +40,6 @@ type User struct {
 	Pw string
 }
 
-func (resp response) printinfo() {
-	fmt.Printf("Title: %s\nDescription: %s\nAuthor: %s\nAuth: %s\nObjects:\n", resp.Title, resp.Desc, resp.Author, resp.Auth)
-	for _, object := range resp.Objects {
-		fmt.Printf("\tName: %s\n\tIschecked: %t\n\tDescription: %s\n", object.Name, object.Check, object.Desc)
-	}
-	fmt.Println()
-}
-
-func userhandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-}
-
 func main() {
 	fmt.Println("TODO SERVER - Copyright by Paul Kramme 2017")
 
@@ -95,7 +83,12 @@ func main() {
 	}
 	color.Green("success\n")
 
-	http.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
+	stmt, err := db.Prepare("INSERT INTO todos(name, description, username, objects) VALUES(?,?,?,?)")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	http.HandleFunc("/api/add", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -116,6 +109,12 @@ func main() {
 			fmt.Fprintf(w, "{\"message\":\"%s\"}", err)
 
 			return
+		}
+
+		jsonstmt, _ := tojson(resp.Objects)
+		_, err = stmt.Exec(resp.Title, resp.Desc, resp.Author, string(jsonstmt))
+		if err != nil {
+			fmt.Println(err)
 		}
 
 		// Get user
@@ -141,4 +140,12 @@ func fromjson(src string, v interface{}) error {
 
 func tojson(v interface{}) ([]byte, error) {
 	return json.Marshal(v)
+}
+
+func (resp response) printinfo() {
+	fmt.Printf("Title: %s\nDescription: %s\nAuthor: %s\nAuth: %s\nObjects:\n", resp.Title, resp.Desc, resp.Author, resp.Auth)
+	for _, object := range resp.Objects {
+		fmt.Printf("\tName: %s\n\tIschecked: %t\n\tDescription: %s\n", object.Name, object.Check, object.Desc)
+	}
+	fmt.Println()
 }
