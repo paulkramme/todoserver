@@ -65,8 +65,8 @@ func update(url string) {
 	var ghapiresp GithubReleasesApiResponse
 	err = fromjson(string(body), &ghapiresp)
 	if ghapiresp.Tag_name != version {
-		fmt.Printf("New version %s found!", ghapiresp.Tag_name)
-		fmt.Printf("Download from %s", ghapiresp.Html_url)
+		fmt.Printf("New version %s found!\n", ghapiresp.Tag_name)
+		fmt.Printf("Download from %s\n", ghapiresp.Html_url)
 	}
 }
 
