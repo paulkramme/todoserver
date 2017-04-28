@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	version string = "0.1.0"
+	version string = "0.2.0"
 )
 
 type config struct {
@@ -50,7 +50,7 @@ type GithubReleasesAssetsApiResponse struct {
 type GithubReleasesApiResponse struct {
 	Tag_name string
 	Html_url string
-	Assets []GithubReleasesAssetsApiResponse
+	Assets   []GithubReleasesAssetsApiResponse
 }
 
 func update(url string) {
