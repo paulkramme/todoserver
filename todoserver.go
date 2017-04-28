@@ -10,6 +10,10 @@ import (
 	"net/http"
 )
 
+var (
+	version string = "0.1.0"
+)
+
 type config struct {
 	Api_site_prefix string
 	Listen          string
@@ -39,6 +43,33 @@ type User struct {
 	Pw string
 }
 
+type GithubReleasesAssetsApiResponse struct {
+	Browser_download_url string
+}
+
+type GithubReleasesApiResponse struct {
+	Tag_name string
+	Html_url string
+	Assets []GithubReleasesAssetsApiResponse
+}
+
+func update(url string) {
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Println("There was a problem with autoupdate:")
+		fmt.Println(err)
+		return
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	var ghapiresp GithubReleasesApiResponse
+	err = fromjson(string(body), &ghapiresp)
+	if ghapiresp.Tag_name != version {
+		fmt.Printf("New version %s found!", ghapiresp.Tag_name)
+		fmt.Printf("Download from %s", ghapiresp.Html_url)
+	}
+}
+
 func main() {
 	fmt.Println("TODO SERVER - Copyright by Paul Kramme 2017")
 	fmt.Println("Licensed under MIT License")
@@ -59,6 +90,8 @@ func main() {
 
 	infoprinting := flag.Bool("info", false, "Printing incoming api usage and number of connections")
 	flag.Parse()
+
+	go update("https://api.github.com/repos/paulkramme/todoserver/releases/latest")
 
 	fmt.Print("Connecting to database: ")
 	db_string := fmt.Sprintf("%s:%s@tcp(%s:%d)/todo", conf.Sql_user, conf.Sql_password, conf.Sql_server, conf.Sql_port)
