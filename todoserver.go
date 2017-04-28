@@ -67,14 +67,14 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
-	fmt.Println("success\n")
+	fmt.Println("success")
 
 	fmt.Print("Testing database connection: ")
 	err = db.Ping()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("success\n")
+	fmt.Println("success")
 
 	stmt, err := db.Prepare("INSERT INTO todos(name, description, username, objects) VALUES(?,?,?,?)")
 	if err != nil {
