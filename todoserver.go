@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	version string = "0.2.0"
+	version string = "0.2.1"
 )
 
 type config struct {
