@@ -92,6 +92,8 @@ func main() {
 
 	go checkupdate("https://api.github.com/repos/paulkramme/todoserver/releases/latest")
 
+	DatabaseWritingChannel := make(chan response, 1)
+
 	fmt.Print("Connecting to database: ")
 	db_string := fmt.Sprintf("%s:%s@tcp(%s:%d)/todo", conf.Sql_user, conf.Sql_password, conf.Sql_server, conf.Sql_port)
 	db, err := sql.Open("mysql", db_string)
@@ -112,6 +114,8 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+
 
 	http.HandleFunc("/api/add", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
@@ -136,12 +140,7 @@ func main() {
 			return
 		}
 
-		jsonstmt, _ := tojson(resp.Objects)
-		_, err = stmt.Exec(resp.Title, resp.Desc, resp.Author, string(jsonstmt))
-		if err != nil {
-			fmt.Println(err)
-		}
-
+		DatabaseWritingChannel <- resp
 		// Get user
 		// Compare user with post author
 		// post post to database
@@ -157,6 +156,19 @@ func main() {
 
 	fmt.Println("Initialization complete.")
 	http.ListenAndServe(conf.Listen, nil)
+}
+
+
+// Needs way more thinking... Integrate worker pools... and stuff. Good night.
+func DatabaseWritingWorker(DatabaseWritingChannel chan response, PreppedStmt sql.Stmt) {
+	for {
+		dataset := <-DatabaseWritingChannel
+		jsonstmt, _ := tojson(dataset.Objects)
+		_, err := PreppedStmt.Exec(dataset.Title, dataset.Desc, dataset.Author, string(jsonstmt))
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 }
 
 func fromjson(src string, v interface{}) error {
