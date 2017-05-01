@@ -8,6 +8,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"io/ioutil"
 	"net/http"
+	"log"
 )
 
 var (
@@ -110,7 +111,7 @@ func main() {
 
 	stmt, err := db.Prepare("INSERT INTO todos(name, description, username, objects) VALUES(?,?,?,?)")
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	http.HandleFunc("/api/add", func(w http.ResponseWriter, r *http.Request) {
@@ -118,7 +119,7 @@ func main() {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			if *infoprinting == true {
-				fmt.Println(err)
+				log.Println(err)
 			}
 			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprintf(w, "{\"message\": \"%s\"}", err)
@@ -128,7 +129,7 @@ func main() {
 		err = fromjson(string(body), &resp)
 		if err != nil {
 			if *infoprinting == true {
-				fmt.Println(err)
+				log.Println(err)
 			}
 			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprintf(w, "{\"message\":\"%s\"}", err)
@@ -139,7 +140,7 @@ func main() {
 		jsonstmt, _ := tojson(resp.Objects)
 		_, err = stmt.Exec(resp.Title, resp.Desc, resp.Author, string(jsonstmt))
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 
 		// Get user
@@ -168,7 +169,7 @@ func tojson(v interface{}) ([]byte, error) {
 }
 
 func (resp response) printinfo() {
-	fmt.Printf("Title: %s\nDescription: %s\nAuthor: %s\nAuth: %s\nObjects:\n", resp.Title, resp.Desc, resp.Author, resp.Auth)
+	log.Printf("Title: %s\nDescription: %s\nAuthor: %s\nAuth: %s\nObjects:\n", resp.Title, resp.Desc, resp.Author, resp.Auth)
 	for _, object := range resp.Objects {
 		fmt.Printf("\tName: %s\n\tIschecked: %t\n\tDescription: %s\n", object.Name, object.Check, object.Desc)
 	}
